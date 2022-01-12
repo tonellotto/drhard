@@ -1,5 +1,6 @@
 from setuptools import setup
 
+readme = ''
 setup(
    name='drhard',
    version='0.1.0',
@@ -12,11 +13,12 @@ setup(
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ],
    license="BSD-3-Clause License",
-#   long_description=readme,
+   long_description=readme,
    install_requires=[
         'torch>=1.7.0',
         'transformers>=3.4.0',
         'faiss-gpu>=1.6.4.post2',
         'tensorboard>=2.3.0'
     ],
+    packages=['drhard'],
 )
