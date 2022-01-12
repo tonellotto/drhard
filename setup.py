@@ -1,8 +1,5 @@
 from setuptools import setup
 
-with open('README.md') as f:
-    readme = f.read()
-
 setup(
    name='drhard',
    version='0.1.0',
@@ -15,7 +12,7 @@ setup(
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ],
    license="BSD-3-Clause License",
-   long_description=readme,
+#   long_description=readme,
    install_requires=[
         'torch>=1.7.0',
         'transformers>=3.4.0',
