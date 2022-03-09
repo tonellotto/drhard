@@ -38,7 +38,6 @@ def prediction(model, data_collator, args, dataset, embedding_memmap, ids_memmap
     for inputs, ids in tqdm(dataloader):
         for k, v in inputs.items():
             inputs[k] = v.to(args.device)
-
         logits = model(is_query=is_query, **inputs).detach().cpu().numpy()
         write_size = len(logits)
         assert write_size == len(ids)
