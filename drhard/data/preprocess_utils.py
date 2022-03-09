@@ -85,7 +85,6 @@ def tokenize_to_file(model_name_or_path: str, in_path: str, output_dir: str,
     token_ids_array    = np.memmap(os.path.join(output_dir, "token_ids.memmap"), shape=(data_cnt, max_length), mode='w+', dtype=np.int32)
     token_length_array = np.memmap(os.path.join(output_dir, "lengths.memmap"),   shape=(data_cnt, ),           mode='w+', dtype=np.int32)
 
-
     pbar = tqdm(total=data_cnt, desc="Tokenizing", position=pid, leave=False)
     for idx, line in enumerate(open(in_path, 'r')):
         if idx < begin_idx:
@@ -107,5 +106,5 @@ def dump_json(output, total, dim):
         'type': 'int32', 
         'total_number': total,
         'embedding_size': dim}
-    with open(output + "_meta.json", 'w') as f:
+    with open(output, 'w') as f:
         json.dump(meta, f)

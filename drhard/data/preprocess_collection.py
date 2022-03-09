@@ -1,5 +1,4 @@
 import os
-import json
 import pickle
 import shutil
 import argparse
@@ -7,6 +6,7 @@ import subprocess
 import multiprocessing
 import numpy as np
 
+from tqdm import tqdm
 from . import preprocess_utils as pp
 
 # conda activate drhard-tok
@@ -15,7 +15,7 @@ from . import preprocess_utils as pp
 def multi_file_process(args, num_process, in_path, out_path, preprocessing_fn):
 
     num_docs = int(subprocess.check_output(["wc", "-l", in_path]).decode("utf-8").split()[0])
-    num_docs = 80_000 # for debugging
+    # num_docs = 80_000 # for debugging
     print(f"Number of documents to process {num_docs}")
 
     run_arguments = []
@@ -27,7 +27,7 @@ def multi_file_process(args, num_process, in_path, out_path, preprocessing_fn):
         run_arguments.append((args.model_name_or_path, in_path, output_dir, preprocessing_fn, begin_idx, end_idx, args.max_seq_length, i))
         splits_dir.append(output_dir)
 
-    pool = multiprocessing.Pool(processes=num_process)
+    pool = multiprocessing.Pool(processes=num_process, initializer=tqdm.set_lock, initargs=(tqdm.get_lock(),))
     pool.starmap(pp.tokenize_to_file, run_arguments)
     pool.close()
     pool.join()
@@ -90,7 +90,6 @@ if __name__ == '__main__':
     parser.add_argument("--data_type",          default=1,              type=int, help="0 for doc, 1 for passage")
 
     parser.add_argument("--max_seq_length",     default=512,            type=int, help="The maximum total input sequence length after tokenization. Sequences longer than this will be truncated, sequences shorter will be padded.")
-    parser.add_argument("--max_query_length",   default=64,             type=int, help="The maximum total input sequence length after tokenization. Sequences longer than this will be truncated, sequences shorter will be padded.")
     parser.add_argument("--max_doc_character",  default=10000,          type=int, help="used before tokenizer to save tokenizer latency")
 
     parser.add_argument("--threads", default=multiprocessing.cpu_count(), type=int)
