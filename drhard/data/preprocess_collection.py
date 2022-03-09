@@ -10,7 +10,7 @@ import numpy as np
 from . import preprocess_utils as pp
 
 # conda activate drhard-tok
-# python preprocess_collection.py --data_type 1 --threads 8 --input_path=./data/passage/dataset --output_path=./merda
+# python -m drhard.data.preprocess_collection --data_type 1 --threads 8 --input_path=/data2/DRhard/data/passage/dataset --output_path=./merda
 
 def multi_file_process(args, num_process, in_path, out_path, preprocessing_fn):
 
@@ -52,7 +52,7 @@ def preprocess(args):
                                                   preprocessing_fn)
 
     print('start merging splits')
-    token_ids_array = np.memmap(out_passage_path + ".memmap", shape=(num_docs, args.max_seq_length), mode='w+', dtype=np.int32)
+    token_ids_array = np.memmap(os.path.join(out_passage_path, "collection.memmap"), shape=(num_docs, args.max_seq_length), mode='w+', dtype=np.int32)
     pid2offset = {}
     token_length_array = []
 
@@ -68,12 +68,12 @@ def preprocess(args):
             pid2offset[pid] = idx
             idx += 1
     assert len(token_length_array) == len(token_ids_array) == idx
-    np.save(out_passage_path + "_length.npy", np.array(token_length_array))
-    pp.dump_json(out_passage_path + "_meta.json", idx, args.max_seq_length)
+
+    np.save(os.path.join(out_passage_path, "collection_length.npy"), np.array(token_length_array))
+    pp.dump_json(os.path.join(out_passage_path, "collection_meta.json"), idx, args.max_seq_length)
     print(f"Total lines written: {idx}")
     
-    pid2offset_path = out_passage_path + "_pid2offset.pickle"
-    with open(pid2offset_path, 'wb') as handle:
+    with open( os.path.join(out_passage_path, "collection_pid2offset.pickle"), 'wb') as handle:
         pickle.dump(pid2offset, handle, protocol=4)
     
     for split_dir in splits_dir_lst:
@@ -97,7 +97,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if os.path.exists(args.output_path + '.memmap'):
+    if os.path.exists(os.path.join(args.output_path, "collection.memmap")):
         print(f"preprocessed data already exist in {args.output_path}, exit preprocessing")
     else:
+        os.makedirs(args.output_path, exist_ok=True)
         preprocess(args)
