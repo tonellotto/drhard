@@ -13,7 +13,7 @@ class TokenIdsCache:
         self.max_seq_len = meta['embedding_size']
         self.type = meta['type']
 
-        self.ids_arr = np.memmap(prefix + 'memmap', shape=(self.total_number, self.max_seq_len), dtype=np.dtype(self.type), mode="r")
+        self.ids_arr = np.memmap(prefix + '.memmap', shape=(self.total_number, self.max_seq_len), dtype=np.dtype(self.type), mode="r")
         self.lengths_arr = np.load(prefix + '_length.npy')
 
         assert len(self.lengths_arr) == self.total_number

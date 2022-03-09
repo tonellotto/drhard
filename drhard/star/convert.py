@@ -11,10 +11,10 @@ from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SequentialSampler
 from transformers import RobertaConfig
 
-from model import RobertaDot
-from data.dataset import TokenIdsCache
-from data.dataset import SequenceDataset
-from data.dataset import single_get_collate_function
+from ..model import RobertaDot
+from ..data.dataset import TokenIdsCache
+from ..data.dataset import SequenceDataset
+from ..data.dataset import single_get_collate_function
 
 
 def prediction(model, data_collator, args, dataset, embedding_memmap, ids_memmap, is_query):
@@ -30,8 +30,8 @@ def prediction(model, data_collator, args, dataset, embedding_memmap, ids_memmap
         model = torch.nn.DataParallel(model)
 
     print("***** Running *****")
-    print(f"  Num examples = {dataloader.batch_size}")
-    print(f"  Batch size = {len(dataloader.dataset)}")
+    print(f"  Num examples = {len(dataloader.dataset)}")
+    print(f"  Batch size = {dataloader.batch_size}")
 
     model.eval()
     write_index = 0
@@ -82,13 +82,14 @@ def main():
     # Computed arguments
     args.device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
     args.n_gpu = torch.cuda.device_count()
+    args.input_prefix  = os.path.join(Path(args.input_file).parent, Path(args.input_file).stem)
     args.output_prefix = os.path.join(args.output_path, Path(args.input_file).stem)
 
-    args.emb_memmap_path    = args.output_prefix + ".emb.memmap"
-    args.ids_memmap_path = os.path.join(args.output_path, ".ids.memmap")
+    args.emb_memmap_path = args.output_prefix + ".emb.memmap"
+    args.ids_memmap_path = args.output_prefix + ".ids.memmap"
 
-    config = RobertaConfig.from_pretrained(args.model_path, gradient_checkpointing=False)
-    model = RobertaDot.from_pretrained(args.model_path, config=config)
+    config = RobertaConfig.from_pretrained(args.model_name_or_path, gradient_checkpointing=False)
+    model = RobertaDot.from_pretrained(args.model_name_or_path, config=config)
     model = model.to(args.device)
     output_embedding_size = model.output_embedding_size
 
